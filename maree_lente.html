@@ -1,0 +1,510 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Marée lente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,300;1,6..72,400&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: one full-screen night seascape; the moon rises with each inhale. Deliberately single dark theme (calm, low light, usable at night). */
+:root {
+  color-scheme: dark;
+  --sky-top: #0b1324;
+  --sky-low: #1a2a44;
+  --sea: #0a1a2c;
+  --sea-deep: #050d18;
+  --moon: #f3ead2;
+  --halo: #9fc3d6;
+  --ink: #e6edf3;
+  --ink-soft: #9fb0c2;
+  --line: rgba(159, 195, 214, 0.22);
+  --panel: rgba(9, 18, 32, 0.82);
+  --display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+html, body { height: 100%; }
+body {
+  background: var(--sky-top);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.5;
+  overflow: hidden;
+  -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+#app { position: relative; height: 100%; width: 100%; overflow: hidden; }
+#stage { position: absolute; inset: 0; touch-action: none; cursor: pointer; }
+canvas { display: block; width: 100%; height: 100%; }
+
+/* HUD */
+.hud {
+  position: absolute; left: 0; right: 0; top: 0;
+  padding-top: 14px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; align-items: center; gap: 12px;
+  pointer-events: none;
+}
+.track { flex: 1; height: 3px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.track i { display: block; height: 100%; width: 0%; background: var(--halo); opacity: .8; }
+.clock { font-variant-numeric: tabular-nums; color: var(--ink-soft); font-size: 13px; min-width: 3.2em; text-align: right; }
+.icon-btn {
+  pointer-events: auto;
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+  display: grid; place-items: center; cursor: pointer;
+}
+.icon-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+.cue {
+  position: absolute; left: 0; right: 0; bottom: 13%;
+  text-align: center; pointer-events: none;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.cue .word { font-family: var(--display); font-style: italic; font-weight: 300; font-size: clamp(40px, 11vw, 64px); line-height: 1; letter-spacing: -0.01em; }
+.cue .sub { margin-top: 10px; color: var(--ink-soft); font-size: 14px; }
+.cue .sub b { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+.inphase {
+  position: absolute; top: 64px; left: 50%; transform: translateX(-50%);
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--halo);
+  opacity: 0; transition: opacity .8s ease; pointer-events: none;
+}
+
+/* Overlays */
+.overlay {
+  position: absolute; inset: 0; overflow-y: auto;
+  background: linear-gradient(180deg, rgba(11,19,36,.55), rgba(5,13,24,.92) 55%);
+  display: flex; align-items: center; justify-content: center;
+  padding-block: 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.card { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 22px; }
+.eyebrow { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--halo); }
+h1, h2 { font-family: var(--display); font-weight: 400; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+h1 { font-size: 46px; line-height: 1.02; }
+h1 em, h2 em { font-weight: 300; }
+h2 { font-size: 34px; line-height: 1.1; }
+.lede { color: var(--ink-soft); margin: 0; max-width: 34ch; }
+.lede strong { color: var(--ink); font-weight: 500; }
+
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field > span { font-size: 12px; color: var(--ink-soft); letter-spacing: .04em; }
+.seg { display: flex; gap: 6px; }
+.seg label { flex: 1; position: relative; }
+.seg input { position: absolute; opacity: 0; inset: 0; }
+.seg label span {
+  display: block; text-align: center; padding: 10px 6px; border-radius: 10px;
+  border: 1px solid var(--line); color: var(--ink-soft); font-size: 14px; cursor: pointer;
+  font-variant-numeric: tabular-nums; line-height: 1.25;
+}
+.seg label small { display: block; font-size: 11px; opacity: .75; }
+.seg input:checked + span { border-color: var(--halo); color: var(--ink); background: rgba(159,195,214,.1); }
+.seg input:focus-visible + span { outline: 2px solid var(--halo); outline-offset: 2px; }
+
+.toggles { display: flex; gap: 18px; flex-wrap: wrap; }
+.toggle { display: flex; align-items: center; gap: 8px; color: var(--ink-soft); font-size: 14px; cursor: pointer; }
+.toggle input { accent-color: var(--halo); width: 18px; height: 18px; }
+
+.btn {
+  font: inherit; font-weight: 600; font-size: 16px;
+  padding: 15px 20px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--moon); background: var(--moon); color: var(--sea-deep);
+}
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); font-weight: 500; }
+.btn:focus-visible, .icon-btn:focus-visible { outline: 2px solid var(--halo); outline-offset: 3px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row .btn { flex: 1 1 140px; }
+
+.fine { font-size: 12px; color: var(--ink-soft); opacity: .85; margin: 0; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stat { border-top: 1px solid var(--line); padding-top: 10px; }
+.stat b { display: block; font-family: var(--display); font-size: 30px; font-weight: 400; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12px; color: var(--ink-soft); }
+</style>
+
+<div id="app">
+  <div id="stage" aria-label="Zone de jeu : appuyez pour inspirer, relâchez pour expirer"><canvas id="cv"></canvas></div>
+
+  <div class="hud" id="hud" hidden>
+    <div class="track"><i id="bar"></i></div>
+    <div class="clock" id="clock">3:00</div>
+    <button class="icon-btn" id="pauseBtn" aria-label="Pause">
+      <svg viewBox="0 0 16 16"><rect x="3" y="2" width="3.5" height="12" rx="1"/><rect x="9.5" y="2" width="3.5" height="12" rx="1"/></svg>
+    </button>
+  </div>
+  <div class="inphase" id="inphase">En phase</div>
+  <div class="cue" id="cue" hidden>
+    <div class="word" id="cueWord">Posez le pouce</div>
+    <div class="sub" id="cueSub">le halo va monter</div>
+  </div>
+
+  <!-- Accueil -->
+  <div class="overlay" id="intro">
+    <form class="card" id="setup">
+      <div class="eyebrow">Prototype · respiration guidée</div>
+      <h1>Marée <em>lente</em></h1>
+      <p class="lede"><strong>Gardez le doigt appuyé</strong> pour inspirer, la lune se lève. <strong>Relâchez</strong> pour expirer, elle redescend. Suivez le halo : il part de votre rythme et ralentit doucement.</p>
+
+      <div class="field">
+        <span>Rythme cible (inspiration / expiration)</span>
+        <div class="seg">
+          <label><input type="radio" name="rhythm" id="r35" value="3-5"><span>3 s / 5 s<small>court</small></span></label>
+          <label><input type="radio" name="rhythm" id="r46" value="4-6" checked><span>4 s / 6 s<small>conseillé</small></span></label>
+          <label><input type="radio" name="rhythm" id="r57" value="5-7"><span>5 s / 7 s<small>profond</small></span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <span>Durée</span>
+        <div class="seg">
+          <label><input type="radio" name="dur" id="d2" value="120"><span>2 min</span></label>
+          <label><input type="radio" name="dur" id="d3" value="180" checked><span>3 min</span></label>
+          <label><input type="radio" name="dur" id="d5" value="300"><span>5 min</span></label>
+        </div>
+      </div>
+
+      <div class="toggles">
+        <label class="toggle"><input type="checkbox" id="snd" checked> Son doux</label>
+        <label class="toggle"><input type="checkbox" id="vib" checked> Vibrations</label>
+      </div>
+
+      <button class="btn" type="submit" id="startBtn">Commencer</button>
+      <p class="fine">Outil d'autorégulation, pas un traitement. Pas d'échec possible : si vous perdez le rythme, reprenez simplement au prochain souffle.</p>
+    </form>
+  </div>
+
+  <!-- Pause -->
+  <div class="overlay" id="pause" hidden>
+    <div class="card">
+      <h2>En pause</h2>
+      <p class="lede">Reprenez quand vous voulez. Le rythme repartira d'une expiration.</p>
+      <div class="row">
+        <button class="btn" id="resumeBtn">Reprendre</button>
+        <button class="btn ghost" id="stopBtn">Terminer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fin -->
+  <div class="overlay" id="end" hidden>
+    <div class="card">
+      <div class="eyebrow">Séance terminée</div>
+      <h2 id="endTitle">La mer s'est <em>calmée</em>.</h2>
+      <div class="stats">
+        <div class="stat"><b id="sTime">3:00</b><span>durée</span></div>
+        <div class="stat"><b id="sCycles">18</b><span>respirations</span></div>
+        <div class="stat"><b id="sSync">74 %</b><span>en phase</span></div>
+      </div>
+      <p class="lede" id="endNote">Prenez un instant avant de vous relever. Remarquez ce qui a changé dans votre corps.</p>
+      <div class="row">
+        <button class="btn" id="againBtn">Encore une marée</button>
+        <button class="btn ghost" id="setupBtn">Réglages</button>
+      </div>
+      <p class="fine">Si les crises sont fréquentes ou intenses, parlez-en à un médecin. En cas d'urgence : 15 ou 112.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const cv = $("cv"), ctx = cv.getContext("2d");
+  const reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- Réglages ---------- */
+  const settings = { inh: 4, exh: 6, dur: 180, sound: true, haptic: true };
+  try {
+    const s = JSON.parse(localStorage.getItem("maree-settings") || "null");
+    if (s) Object.assign(settings, s);
+  } catch (e) {}
+  const rId = { "3-5": "r35", "4-6": "r46", "5-7": "r57" }[settings.inh + "-" + settings.exh];
+  if (rId) $(rId).checked = true;
+  const dId = { 120: "d2", 180: "d3", 300: "d5" }[settings.dur];
+  if (dId) $(dId).checked = true;
+  $("snd").checked = settings.sound; $("vib").checked = settings.haptic;
+
+  function readSettings() {
+    const r = document.querySelector('input[name="rhythm"]:checked').value.split("-").map(Number);
+    settings.inh = r[0]; settings.exh = r[1];
+    settings.dur = Number(document.querySelector('input[name="dur"]:checked').value);
+    settings.sound = $("snd").checked; settings.haptic = $("vib").checked;
+    try { localStorage.setItem("maree-settings", JSON.stringify(settings)); } catch (e) {}
+  }
+
+  /* ---------- Canvas ---------- */
+  let W = 0, H = 0, dpr = 1;
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  // étoiles à positions fixes (pseudo-aléatoire stable)
+  let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const starPos = Array.from({ length: 90 }, () => ({ x: rnd(), y: rnd() * 0.55, s: 0.6 + rnd() * 1.3, ph: rnd() * 6.28 }));
+
+  /* ---------- Son ---------- */
+  let ac = null, master = null, filt = null;
+  function audioStart() {
+    if (!settings.sound) return;
+    try {
+      if (!ac) {
+        ac = new (window.AudioContext || window.webkitAudioContext)();
+        master = ac.createGain(); master.gain.value = 0;
+        filt = ac.createBiquadFilter(); filt.type = "lowpass"; filt.frequency.value = 300; filt.Q.value = 0.7;
+        [146.8, 220, 293.7].forEach((f, i) => {
+          const o = ac.createOscillator(); o.type = i === 1 ? "triangle" : "sine"; o.frequency.value = f;
+          const gg = ac.createGain(); gg.gain.value = i === 0 ? 0.6 : 0.25;
+          o.connect(gg); gg.connect(filt); o.start();
+        });
+        filt.connect(master); master.connect(ac.destination);
+      }
+      ac.resume();
+    } catch (e) { ac = null; }
+  }
+  function audioLevel(p, on) {
+    if (!ac || !master) return;
+    const t = ac.currentTime;
+    master.gain.setTargetAtTime(on && settings.sound ? 0.025 + 0.07 * p : 0, t, 0.15);
+    filt.frequency.setTargetAtTime(220 + 900 * p, t, 0.15);
+  }
+
+  /* ---------- Vibrations & écran ---------- */
+  function buzz(pattern) {
+    if (!settings.haptic) return;
+    try { navigator.vibrate && navigator.vibrate(pattern); } catch (e) {}
+  }
+  let wake = null;
+  async function wakeOn() { try { wake = await navigator.wakeLock.request("screen"); } catch (e) { wake = null; } }
+  function wakeOff() { try { wake && wake.release(); } catch (e) {} wake = null; }
+
+  /* ---------- Jeu ---------- */
+  const ease = (x) => (1 - Math.cos(Math.PI * Math.max(0, Math.min(1, x)))) / 2;
+  const lerp = (a, b, k) => a + (b - a) * k;
+  const RAMP = 60; // secondes pour passer du rythme de départ au rythme cible
+
+  let g = null, running = false, paused = false, last = 0, clock = 0;
+
+  // rythme courant : part de 3 s / 3 s (proche d'une respiration agitée) et ralentit vers la cible
+  function durFor(kind) {
+    const k = ease(Math.min(1, g.active / RAMP));
+    return kind === "in" ? lerp(Math.min(3, settings.inh), settings.inh, k)
+                         : lerp(Math.min(3, settings.exh), settings.exh, k);
+  }
+
+  function newGame() {
+    return { phase: "pre", phaseT: 0, phaseDur: 3, t: 0, q: 0, p: 0, pressing: false,
+             active: 0, synced: 0, sync: 0, cycles: 0, stars: 0, durIn: 3, durOut: 3 };
+  }
+
+  function setPhase(k) {
+    g.phase = k; g.phaseT = 0;
+    g.durIn = durFor("in"); g.durOut = durFor("out");
+    g.phaseDur = k === "in" ? g.durIn : g.durOut;
+    if (k === "in") { buzz(35); $("cueWord").textContent = "Inspirez"; }
+    else { buzz([15, 70, 15]); $("cueWord").textContent = "Expirez"; }
+  }
+
+  function update(dt) {
+    g.phaseT += dt;
+    if (g.phase === "pre") {
+      g.t = 0;
+      if (g.phaseT >= g.phaseDur) setPhase("in");
+    } else {
+      g.active += dt;
+      if (g.phaseT >= g.phaseDur) {
+        if (g.phase === "in") setPhase("out");
+        else {
+          g.cycles++;
+          if (g.active >= settings.dur) return finish();
+          setPhase("in");
+        }
+      }
+      const x = g.phaseT / g.phaseDur;
+      g.t = g.phase === "in" ? ease(x) : 1 - ease(x);
+    }
+
+    // le joueur : appui = monte au rythme d'inspiration, relâché = descend au rythme d'expiration
+    const rate = g.pressing ? 1 / g.durIn : -1 / g.durOut;
+    g.q = Math.max(0, Math.min(1, g.q + rate * dt));
+    g.p = ease(g.q);
+
+    if (g.phase !== "pre") {
+      const close = Math.abs(g.p - g.t) < 0.16;
+      if (close) g.synced += dt;
+      g.sync += ((close ? 1 : 0) - g.sync) * Math.min(1, dt * 2.5);
+      g.stars = Math.min(starPos.length, Math.floor(g.synced / 3));
+    }
+
+    // interface
+    const left = Math.max(0, settings.dur - g.active);
+    $("clock").textContent = fmt(left);
+    $("bar").style.width = (100 * Math.min(1, g.active / settings.dur)) + "%";
+    $("inphase").style.opacity = g.sync > 0.65 ? 0.9 : 0;
+    const secs = Math.max(1, Math.ceil(g.phaseDur - g.phaseT));
+    if (g.phase === "pre") $("cueSub").innerHTML = "le halo monte dans <b>" + secs + "</b>";
+    else if (g.phase === "in") $("cueSub").innerHTML = "gardez appuyé · <b>" + secs + "</b>";
+    else $("cueSub").innerHTML = "relâchez, lentement · <b>" + secs + "</b>";
+    audioLevel(g.p, true);
+  }
+
+  function fmt(s) { s = Math.round(s); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+
+  /* ---------- Dessin ---------- */
+  function draw(time) {
+    const t = g ? g.t : 0.35, p = g ? g.p : 0.35, sync = g ? g.sync : 0.5;
+    const shown = g ? g.stars : 24;
+    const hz = H * 0.64;
+    const r = Math.max(26, Math.min(W, H) * 0.075);
+    const yTop = H * 0.2, yLow = hz + r * 0.35;
+    const mx = W / 2;
+    const yP = lerp(yLow, yTop, p), yT = lerp(yLow, yTop, t);
+
+    // ciel : s'éclaircit légèrement quand la lune monte
+    const sky = ctx.createLinearGradient(0, 0, 0, hz);
+    sky.addColorStop(0, "#0b1324");
+    sky.addColorStop(1, `rgb(${26 + 14 * p}, ${42 + 16 * p}, ${68 + 18 * p})`);
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, W, hz + 1);
+
+    // étoiles gagnées en restant en phase
+    for (let i = 0; i < shown; i++) {
+      const s = starPos[i];
+      const a = reduced ? 0.7 : 0.45 + 0.4 * Math.sin(time * 0.0012 + s.ph);
+      ctx.fillStyle = `rgba(230,237,243,${a})`;
+      ctx.beginPath(); ctx.arc(s.x * W, s.y * hz, s.s, 0, 6.283); ctx.fill();
+    }
+
+    // lueur
+    const gr = r * (2.4 + 1.6 * sync);
+    const glow = ctx.createRadialGradient(mx, yP, r * 0.6, mx, yP, gr);
+    glow.addColorStop(0, `rgba(243,234,210,${0.16 + 0.22 * sync})`);
+    glow.addColorStop(1, "rgba(243,234,210,0)");
+    ctx.fillStyle = glow; ctx.fillRect(mx - gr, yP - gr, gr * 2, gr * 2);
+
+    // lune (joueur)
+    ctx.fillStyle = "#f3ead2";
+    ctx.beginPath(); ctx.arc(mx, yP, r, 0, 6.283); ctx.fill();
+    ctx.fillStyle = "rgba(200,190,165,.35)";
+    ctx.beginPath(); ctx.arc(mx - r * 0.3, yP - r * 0.2, r * 0.18, 0, 6.283); ctx.fill();
+    ctx.beginPath(); ctx.arc(mx + r * 0.25, yP + r * 0.3, r * 0.12, 0, 6.283); ctx.fill();
+
+    // halo guide (cible)
+    if (!g || g.phase !== "pre") {
+      ctx.strokeStyle = `rgba(159,195,214,${0.5 + 0.3 * (1 - sync)})`;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([3, 6]);
+      ctx.beginPath(); ctx.arc(mx, yT, r + 12, 0, 6.283); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    // mer : recouvre le bas de la lune quand elle se couche
+    const sea = ctx.createLinearGradient(0, hz, 0, H);
+    sea.addColorStop(0, "#10243b"); sea.addColorStop(1, "#050d18");
+    ctx.fillStyle = sea; ctx.fillRect(0, hz, W, H - hz);
+
+    // reflet
+    const vis = Math.max(0, Math.min(1, (hz - yP + r) / (2 * r)));
+    const drift = reduced ? 0 : time * 0.0006;
+    for (let i = 0; i < 26; i++) {
+      const y = hz + 4 + Math.pow(i, 1.35) * 4.2;
+      if (y > H) break;
+      const w = r * (1.1 + 0.9 * Math.sin(i * 1.7 + drift * 3)) * (0.6 + i * 0.05);
+      ctx.fillStyle = `rgba(243,234,210,${(0.32 - i * 0.011) * vis})`;
+      ctx.fillRect(mx - w / 2 + Math.sin(i + drift * 4) * 6, y, w, 1.6);
+    }
+    // houle
+    ctx.strokeStyle = "rgba(159,195,214,.10)"; ctx.lineWidth = 1;
+    for (let i = 1; i < 9; i++) {
+      const y = hz + Math.pow(i, 1.5) * 9;
+      if (y > H) break;
+      ctx.beginPath();
+      for (let x = 0; x <= W; x += 12) {
+        const yy = y + Math.sin(x * 0.02 + i + drift * (2 + i * 0.3)) * (1 + i * 0.25);
+        x ? ctx.lineTo(x, yy) : ctx.moveTo(x, yy);
+      }
+      ctx.stroke();
+    }
+    // ligne d'horizon
+    ctx.fillStyle = "rgba(159,195,214,.25)"; ctx.fillRect(0, hz, W, 1);
+  }
+
+  /* ---------- Boucle ---------- */
+  function loop(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; clock = now;
+    if (g && running && !paused) update(dt);
+    draw(now);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame((n) => { last = n; loop(n); });
+
+  /* ---------- Flux d'écrans ---------- */
+  function start() {
+    readSettings();
+    g = newGame(); running = true; paused = false;
+    $("intro").hidden = true; $("end").hidden = true; $("pause").hidden = true;
+    $("hud").hidden = false; $("cue").hidden = false;
+    $("cueWord").textContent = "Posez le pouce";
+    $("clock").textContent = fmt(settings.dur);
+    audioStart(); wakeOn();
+  }
+  function pause() {
+    if (!running || paused) return;
+    paused = true; g.pressing = false; audioLevel(0, false);
+    $("pause").hidden = false;
+  }
+  function resume() {
+    paused = false; $("pause").hidden = true;
+    // reprend sur une expiration douce, depuis la position actuelle
+    g.phase = "out"; g.durIn = durFor("in"); g.durOut = durFor("out");
+    g.phaseDur = g.durOut; g.phaseT = (1 - g.p) * g.phaseDur * 0.5;
+    $("cueWord").textContent = "Expirez";
+    audioStart();
+  }
+  function finish() {
+    running = false; paused = false;
+    if (g) g.pressing = false;
+    audioLevel(0, false); wakeOff(); buzz([20, 80, 20, 80, 20]);
+    const pct = g && g.active > 0 ? Math.round(100 * g.synced / g.active) : 0;
+    $("sTime").textContent = fmt(g ? g.active : 0);
+    $("sCycles").textContent = g ? g.cycles : 0;
+    $("sSync").textContent = pct + " %";
+    $("endNote").textContent = pct >= 60
+      ? "Vous avez suivi la marée la plupart du temps. Prenez un instant avant de vous relever."
+      : "Le rythme a varié, c'est normal. Ce qui compte, c'est d'avoir allongé les expirations.";
+    $("hud").hidden = true; $("cue").hidden = true; $("pause").hidden = true;
+    $("inphase").style.opacity = 0;
+    $("end").hidden = false;
+  }
+
+  $("setup").addEventListener("submit", (e) => { e.preventDefault(); start(); });
+  $("pauseBtn").addEventListener("click", (e) => { e.stopPropagation(); pause(); });
+  $("pauseBtn").addEventListener("pointerdown", (e) => e.stopPropagation());
+  $("resumeBtn").addEventListener("click", resume);
+  $("stopBtn").addEventListener("click", finish);
+  $("againBtn").addEventListener("click", start);
+  $("setupBtn").addEventListener("click", () => { $("end").hidden = true; $("intro").hidden = false; });
+
+  /* ---------- Entrées ---------- */
+  const stage = $("stage");
+  const down = (e) => { if (g && running && !paused) { g.pressing = true; if (e && e.pointerId != null) try { stage.setPointerCapture(e.pointerId); } catch (_) {} } };
+  const up = () => { if (g) g.pressing = false; };
+  stage.addEventListener("pointerdown", down);
+  stage.addEventListener("pointerup", up);
+  stage.addEventListener("pointercancel", up);
+  stage.addEventListener("contextmenu", (e) => e.preventDefault());
+  window.addEventListener("keydown", (e) => {
+    if (e.code === "Space" && running && !paused) { e.preventDefault(); if (!e.repeat) down(); }
+    if (e.code === "Escape" && running) pause();
+  });
+  window.addEventListener("keyup", (e) => { if (e.code === "Space") up(); });
+  window.addEventListener("blur", up);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) pause(); });
+})();
+</script>
+
+</body></html>
