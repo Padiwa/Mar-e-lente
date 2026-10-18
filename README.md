@@ -50,7 +50,22 @@ En crise, on rejoint la personne à son rythme : imposer d'emblée un rythme len
 
 ## Statut
 
-Prototype de test : une page web unique (HTML, CSS, JavaScript, sans dépendance), pensée pour mobile. Elle sert à valider les sensations de la mécanique avant tout développement d'application.
+Prototype de test, disponible sous forme de **PWA** (application web installable). Elle sert à valider les sensations de la mécanique avant tout développement d'application native.
+
+## Installer l'application (PWA)
+
+**Installer sur Android (Chrome, Brave, Edge).** Ouvrir l'adresse dans le navigateur, puis menu ⋮ → « Installer l'application » ou « Ajouter à l'écran d'accueil ».
+
+**Installer sur iPhone.** Ouvrir l'adresse dans Safari, puis Partager → « Sur l'écran d'accueil ». Les vibrations restent indisponibles sur iPhone ; les ondes lumineuses et le son prennent le relais.
+
+**Ce que l'installation apporte**
+
+- **Lancement en un tap** depuis l'écran d'accueil, en plein écran, sans barre de navigateur.
+- **Raccourcis** : un appui long sur l'icône propose « Me calmer » et « Me détendre », qui lancent directement la séance (selon le navigateur et le lanceur Android).
+- **Hors ligne** : après une première ouverture avec réseau, l'application fonctionne sans connexion.
+- **Vibrations** sur Android, puisque la page n'est plus affichée dans un cadre.
+
+**Mettre à jour.** Après avoir modifié les fichiers, changer la valeur `VERSION` en haut de `sw.js` ; l'application installée récupérera la nouvelle version à l'ouverture suivante, avec réseau.
 
 **Questions à valider en test :**
 
@@ -62,6 +77,6 @@ Prototype de test : une page web unique (HTML, CSS, JavaScript, sans dépendance
 
 ## Pistes envisagées
 
-- Lancement en un geste depuis un widget ou un raccourci.
+- Widget d'écran d'accueil (nécessite une application native).
 - Exercice d'ancrage sensoriel (5-4-3-2-1) en complément.
 - Biofeedback via montre connectée.
