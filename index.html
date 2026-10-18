@@ -1,4 +1,9 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}*,*::before,*::after{box-sizing:inherit}body{margin:0}[hidden]{display:none!important}</style>
 <title>Marée lente</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,300;1,6..72,400&family=Figtree:wght@400;500;600&display=swap">
@@ -111,6 +116,15 @@ h2 { font-size: 34px; line-height: 1.1; }
   border: 1px solid var(--moon); background: var(--moon); color: var(--sea-deep);
 }
 .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); font-weight: 500; }
+.modes { display: flex; flex-direction: column; gap: 10px; }
+.modes .btn { border-radius: 18px; padding: 16px 20px; text-align: left; }
+.modes .btn:first-child { font-size: 18px; padding-block: 20px; }
+.modes .btn small { display: block; font-weight: 400; font-size: 13px; opacity: .72; margin-top: 2px; }
+.settings { border-top: 1px solid var(--line); padding-top: 12px; }
+.settings summary { cursor: pointer; color: var(--ink-soft); font-size: 14px; list-style-position: inside; }
+.settings summary:focus-visible { outline: 2px solid var(--halo); outline-offset: 3px; border-radius: 4px; }
+.settings-body { display: flex; flex-direction: column; gap: 18px; padding-top: 16px; }
+.cue { transition: opacity 2.5s ease; }
 .btn:focus-visible, .icon-btn:focus-visible { outline: 2px solid var(--halo); outline-offset: 3px; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; }
 .row .btn { flex: 1 1 140px; }
@@ -144,32 +158,52 @@ h2 { font-size: 34px; line-height: 1.1; }
     <form class="card" id="setup">
       <div class="eyebrow">Prototype · respiration guidée</div>
       <h1>Marée <em>lente</em></h1>
-      <p class="lede"><strong>Gardez le doigt appuyé</strong> pour inspirer, la lune se lève. <strong>Relâchez</strong> pour expirer, elle redescend. Suivez le halo : il part de votre rythme et ralentit doucement.</p>
+      <p class="lede"><strong>Gardez le doigt appuyé</strong> pour inspirer, la lune se lève. <strong>Relâchez</strong> pour expirer, elle redescend. Suivez le halo.</p>
 
-      <div class="field">
-        <span>Rythme cible (inspiration / expiration)</span>
-        <div class="seg">
-          <label><input type="radio" name="rhythm" id="r35" value="3-5"><span>3 s / 5 s<small>court</small></span></label>
-          <label><input type="radio" name="rhythm" id="r46" value="4-6" checked><span>4 s / 6 s<small>conseillé</small></span></label>
-          <label><input type="radio" name="rhythm" id="r57" value="5-7"><span>5 s / 7 s<small>profond</small></span></label>
+      <div class="modes">
+        <button class="btn" type="submit" id="startCrise">J'ai besoin de me calmer<small>part d'un rythme rapide, puis ralentit</small></button>
+        <button class="btn ghost" type="button" id="startDetente">Je veux me détendre<small>calme dès le départ, séance plus longue</small></button>
+      </div>
+
+      <details class="settings" id="settingsBox">
+        <summary>Réglages</summary>
+        <div class="settings-body">
+          <div class="field">
+            <span>Rythme cible (inspiration / expiration)</span>
+            <div class="seg">
+              <label><input type="radio" name="rhythm" id="r35" value="3-5"><span>3 s / 5 s<small>court</small></span></label>
+              <label><input type="radio" name="rhythm" id="r46" value="4-6" checked><span>4 s / 6 s<small>conseillé</small></span></label>
+              <label><input type="radio" name="rhythm" id="r57" value="5-7"><span>5 s / 7 s<small>profond</small></span></label>
+            </div>
+          </div>
+
+          <div class="field">
+            <span>Durée « me calmer »</span>
+            <div class="seg">
+              <label><input type="radio" name="durC" id="dC2" value="120"><span>2 min</span></label>
+              <label><input type="radio" name="durC" id="dC3" value="180" checked><span>3 min</span></label>
+              <label><input type="radio" name="durC" id="dC5" value="300"><span>5 min</span></label>
+            </div>
+          </div>
+
+          <div class="field">
+            <span>Durée « me détendre »</span>
+            <div class="seg">
+              <label><input type="radio" name="durD" id="dD5" value="300" checked><span>5 min</span></label>
+              <label><input type="radio" name="durD" id="dD10" value="600"><span>10 min</span></label>
+              <label><input type="radio" name="durD" id="dD15" value="900"><span>15 min</span></label>
+            </div>
+          </div>
+
+          <div class="toggles">
+            <label class="toggle"><input type="checkbox" id="snd" checked> Son doux</label>
+            <label class="toggle"><input type="checkbox" id="wav" checked> Ondes lumineuses</label>
+            <label class="toggle" id="vibRow"><input type="checkbox" id="vib" checked> Vibrations</label>
+          </div>
+          <p class="fine" id="vibNote" hidden></p>
         </div>
-      </div>
+      </details>
 
-      <div class="field">
-        <span>Durée</span>
-        <div class="seg">
-          <label><input type="radio" name="dur" id="d2" value="120"><span>2 min</span></label>
-          <label><input type="radio" name="dur" id="d3" value="180" checked><span>3 min</span></label>
-          <label><input type="radio" name="dur" id="d5" value="300"><span>5 min</span></label>
-        </div>
-      </div>
-
-      <div class="toggles">
-        <label class="toggle"><input type="checkbox" id="snd" checked> Son doux</label>
-        <label class="toggle"><input type="checkbox" id="vib" checked> Vibrations</label>
-      </div>
-
-      <button class="btn" type="submit" id="startBtn">Commencer</button>
       <p class="fine">Outil d'autorégulation, pas un traitement. Pas d'échec possible : si vous perdez le rythme, reprenez simplement au prochain souffle.</p>
     </form>
   </div>
@@ -213,22 +247,47 @@ h2 { font-size: 34px; line-height: 1.1; }
   const reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ---------- Réglages ---------- */
-  const settings = { inh: 4, exh: 6, dur: 180, sound: true, haptic: true };
+  const settings = { inh: 4, exh: 6, durC: 180, durD: 300, sound: true, haptic: true, waves: true };
   try {
     const s = JSON.parse(localStorage.getItem("maree-settings") || "null");
-    if (s) Object.assign(settings, s);
+    if (s) { if (s.dur && !s.durC) s.durC = s.dur; Object.assign(settings, s); }
   } catch (e) {}
   const rId = { "3-5": "r35", "4-6": "r46", "5-7": "r57" }[settings.inh + "-" + settings.exh];
   if (rId) $(rId).checked = true;
-  const dId = { 120: "d2", 180: "d3", 300: "d5" }[settings.dur];
-  if (dId) $(dId).checked = true;
-  $("snd").checked = settings.sound; $("vib").checked = settings.haptic;
+  const dcId = { 120: "dC2", 180: "dC3", 300: "dC5" }[settings.durC];
+  if (dcId) $(dcId).checked = true;
+  const ddId = { 300: "dD5", 600: "dD10", 900: "dD15" }[settings.durD];
+  if (ddId) $(ddId).checked = true;
+  $("snd").checked = settings.sound; $("vib").checked = settings.haptic; $("wav").checked = settings.waves;
+
+  // Vibrations : absentes sur iPhone, bloquées par les navigateurs quand la page est affichée dans un cadre
+  const canVibrate = "vibrate" in navigator;
+  let framed = false;
+  try { framed = window.self !== window.top; } catch (e) { framed = true; }
+  if (!canVibrate) {
+    $("vibRow").hidden = true;
+    $("vibNote").hidden = false;
+    $("vibNote").textContent = "Vibrations non disponibles sur ce navigateur. Les ondes lumineuses prennent le relais.";
+  } else if (framed) {
+    $("vibNote").hidden = false;
+    $("vibNote").textContent = "Les vibrations sont bloquées dans cet aperçu. Ouvrez le fichier directement dans le navigateur pour les ressentir.";
+  }
+
+  /* Deux modes :
+     - crise   : part de 3 s / 3 s (respiration agitée) et ralentit sur 60 s vers la cible
+     - détente : part à ~90 % de la cible et s'y cale en ~2 respirations, consignes qui s'estompent */
+  const MODES = {
+    crise:   { startIn: () => Math.min(3, settings.inh), startOut: () => Math.min(3, settings.exh), ramp: 60, pre: 3 },
+    detente: { startIn: () => settings.inh * 0.9, startOut: () => settings.exh * 0.85, ramp: 20, pre: 5 }
+  };
+  let mode = "crise";
 
   function readSettings() {
     const r = document.querySelector('input[name="rhythm"]:checked').value.split("-").map(Number);
     settings.inh = r[0]; settings.exh = r[1];
-    settings.dur = Number(document.querySelector('input[name="dur"]:checked').value);
-    settings.sound = $("snd").checked; settings.haptic = $("vib").checked;
+    settings.durC = Number(document.querySelector('input[name="durC"]:checked').value);
+    settings.durD = Number(document.querySelector('input[name="durD"]:checked').value);
+    settings.sound = $("snd").checked; settings.haptic = $("vib").checked; settings.waves = $("wav").checked;
     try { localStorage.setItem("maree-settings", JSON.stringify(settings)); } catch (e) {}
   }
 
@@ -286,19 +345,22 @@ h2 { font-size: 34px; line-height: 1.1; }
   /* ---------- Jeu ---------- */
   const ease = (x) => (1 - Math.cos(Math.PI * Math.max(0, Math.min(1, x)))) / 2;
   const lerp = (a, b, k) => a + (b - a) * k;
-  const RAMP = 60; // secondes pour passer du rythme de départ au rythme cible
-
   let g = null, running = false, paused = false, last = 0, clock = 0;
+  const ripples = []; // ondes lumineuses déclenchées à chaque changement de phase
+  const WAVE_MS = 1800;
 
-  // rythme courant : part de 3 s / 3 s (proche d'une respiration agitée) et ralentit vers la cible
+  // rythme courant : part du rythme de départ du mode et rejoint la cible en `ramp` secondes
   function durFor(kind) {
-    const k = ease(Math.min(1, g.active / RAMP));
-    return kind === "in" ? lerp(Math.min(3, settings.inh), settings.inh, k)
-                         : lerp(Math.min(3, settings.exh), settings.exh, k);
+    const m = MODES[g.mode];
+    const k = ease(Math.min(1, g.active / m.ramp));
+    return kind === "in" ? lerp(m.startIn(), settings.inh, k)
+                         : lerp(m.startOut(), settings.exh, k);
   }
 
-  function newGame() {
-    return { phase: "pre", phaseT: 0, phaseDur: 3, t: 0, q: 0, p: 0, pressing: false,
+  function newGame(md) {
+    const m = MODES[md];
+    return { mode: md, dur: md === "crise" ? settings.durC : settings.durD,
+             phase: "pre", phaseT: 0, phaseDur: m.pre, t: 0, q: 0, p: 0, pressing: false,
              active: 0, synced: 0, sync: 0, cycles: 0, stars: 0, durIn: 3, durOut: 3 };
   }
 
@@ -306,6 +368,7 @@ h2 { font-size: 34px; line-height: 1.1; }
     g.phase = k; g.phaseT = 0;
     g.durIn = durFor("in"); g.durOut = durFor("out");
     g.phaseDur = k === "in" ? g.durIn : g.durOut;
+    if (settings.waves) ripples.push({ kind: k, t0: clock });
     if (k === "in") { buzz(35); $("cueWord").textContent = "Inspirez"; }
     else { buzz([15, 70, 15]); $("cueWord").textContent = "Expirez"; }
   }
@@ -321,7 +384,7 @@ h2 { font-size: 34px; line-height: 1.1; }
         if (g.phase === "in") setPhase("out");
         else {
           g.cycles++;
-          if (g.active >= settings.dur) return finish();
+          if (g.active >= g.dur) return finish();
           setPhase("in");
         }
       }
@@ -342,9 +405,11 @@ h2 { font-size: 34px; line-height: 1.1; }
     }
 
     // interface
-    const left = Math.max(0, settings.dur - g.active);
+    const left = Math.max(0, g.dur - g.active);
     $("clock").textContent = fmt(left);
-    $("bar").style.width = (100 * Math.min(1, g.active / settings.dur)) + "%";
+    $("bar").style.width = (100 * Math.min(1, g.active / g.dur)) + "%";
+    // en détente, les consignes s'estompent après 45 s pour laisser place au son et aux vibrations
+    $("cue").style.opacity = g.mode === "detente" && g.active > 45 ? 0.3 : 1;
     $("inphase").style.opacity = g.sync > 0.65 ? 0.9 : 0;
     const secs = Math.max(1, Math.ceil(g.phaseDur - g.phaseT));
     if (g.phase === "pre") $("cueSub").innerHTML = "le halo monte dans <b>" + secs + "</b>";
@@ -431,6 +496,33 @@ h2 { font-size: 34px; line-height: 1.1; }
     }
     // ligne d'horizon
     ctx.fillStyle = "rgba(159,195,214,.25)"; ctx.fillRect(0, hz, W, 1);
+
+    // ondes lumineuses : repère visuel du changement de phase, perceptible du coin de l'œil
+    //  - inspiration : un anneau bleuté s'élargit autour du halo
+    //  - expiration : une onde dorée s'étale à la surface de la mer
+    for (let i = ripples.length - 1; i >= 0; i--) {
+      const w = ripples[i];
+      const a = (time - w.t0) / WAVE_MS;
+      if (a >= 1 || a < 0) { if (a >= 1) ripples.splice(i, 1); continue; }
+      const k = reduced ? 0.4 : 1 - Math.pow(1 - a, 2.2);
+      const fade = Math.pow(1 - a, 1.5);
+      // léger voile sur tout l'écran, pour la vision périphérique
+      ctx.fillStyle = w.kind === "in" ? `rgba(159,195,214,${0.07 * fade})` : `rgba(243,234,210,${0.05 * fade})`;
+      ctx.fillRect(0, 0, W, H);
+      ctx.lineWidth = 1 + 3 * fade;
+      if (w.kind === "in") {
+        ctx.strokeStyle = `rgba(159,195,214,${0.7 * fade})`;
+        ctx.beginPath(); ctx.arc(mx, yT, r + 14 + k * Math.min(W, H) * 0.42, 0, 6.283); ctx.stroke();
+        ctx.strokeStyle = `rgba(159,195,214,${0.35 * fade})`;
+        ctx.beginPath(); ctx.arc(mx, yT, r + 14 + k * Math.min(W, H) * 0.26, 0, 6.283); ctx.stroke();
+      } else {
+        const ry = 3 + k * 22, rx = r * 1.2 + k * W * 0.55;
+        ctx.strokeStyle = `rgba(243,234,210,${0.6 * fade})`;
+        ctx.beginPath(); ctx.ellipse(mx, hz + 2 + ry, rx, ry, 0, 0, 6.283); ctx.stroke();
+        ctx.strokeStyle = `rgba(243,234,210,${0.3 * fade})`;
+        ctx.beginPath(); ctx.ellipse(mx, hz + 2 + ry * 0.6, rx * 0.65, ry * 0.6, 0, 0, 6.283); ctx.stroke();
+      }
+    }
   }
 
   /* ---------- Boucle ---------- */
@@ -443,13 +535,14 @@ h2 { font-size: 34px; line-height: 1.1; }
   requestAnimationFrame((n) => { last = n; loop(n); });
 
   /* ---------- Flux d'écrans ---------- */
-  function start() {
+  function start(md) {
+    if (md) mode = md;
     readSettings();
-    g = newGame(); running = true; paused = false;
+    g = newGame(mode); running = true; paused = false;
     $("intro").hidden = true; $("end").hidden = true; $("pause").hidden = true;
-    $("hud").hidden = false; $("cue").hidden = false;
-    $("cueWord").textContent = "Posez le pouce";
-    $("clock").textContent = fmt(settings.dur);
+    $("hud").hidden = false; $("cue").hidden = false; $("cue").style.opacity = 1;
+    $("cueWord").textContent = mode === "detente" ? "Installez-vous" : "Posez le pouce";
+    $("clock").textContent = fmt(g.dur);
     audioStart(); wakeOn();
   }
   function pause() {
@@ -473,20 +566,24 @@ h2 { font-size: 34px; line-height: 1.1; }
     $("sTime").textContent = fmt(g ? g.active : 0);
     $("sCycles").textContent = g ? g.cycles : 0;
     $("sSync").textContent = pct + " %";
-    $("endNote").textContent = pct >= 60
-      ? "Vous avez suivi la marée la plupart du temps. Prenez un instant avant de vous relever."
-      : "Le rythme a varié, c'est normal. Ce qui compte, c'est d'avoir allongé les expirations.";
+    $("endTitle").innerHTML = g && g.mode === "detente" ? "La marée s'est <em>retirée</em>." : "La mer s'est <em>calmée</em>.";
+    $("endNote").textContent = g && g.mode === "detente"
+      ? "Restez quelques respirations sans guide, à votre rythme, avant de reprendre vos activités."
+      : pct >= 60
+        ? "Vous avez suivi la marée la plupart du temps. Prenez un instant avant de vous relever."
+        : "Le rythme a varié, c'est normal. Ce qui compte, c'est d'avoir allongé les expirations.";
     $("hud").hidden = true; $("cue").hidden = true; $("pause").hidden = true;
     $("inphase").style.opacity = 0;
     $("end").hidden = false;
   }
 
-  $("setup").addEventListener("submit", (e) => { e.preventDefault(); start(); });
+  $("setup").addEventListener("submit", (e) => { e.preventDefault(); start("crise"); });
+  $("startDetente").addEventListener("click", () => start("detente"));
   $("pauseBtn").addEventListener("click", (e) => { e.stopPropagation(); pause(); });
   $("pauseBtn").addEventListener("pointerdown", (e) => e.stopPropagation());
   $("resumeBtn").addEventListener("click", resume);
   $("stopBtn").addEventListener("click", finish);
-  $("againBtn").addEventListener("click", start);
+  $("againBtn").addEventListener("click", () => start());
   $("setupBtn").addEventListener("click", () => { $("end").hidden = true; $("intro").hidden = false; });
 
   /* ---------- Entrées ---------- */
@@ -507,4 +604,4 @@ h2 { font-size: 34px; line-height: 1.1; }
 })();
 </script>
 
-</body></html>
+</html>

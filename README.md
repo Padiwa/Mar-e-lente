@@ -19,9 +19,20 @@ Le problème : en pleine crise, il est difficile de se concentrer sur des consig
 ## Ce qu'elle fait
 
 - **Une seule mécanique** : garder le doigt appuyé pour inspirer (la lune se lève), relâcher pour expirer (elle redescend). Il suffit de suivre un halo en pointillés.
-- **Démarrage progressif** : le rythme commence à 3 s / 3 s, proche d'une respiration agitée, puis ralentit sur une minute vers le rythme choisi. Imposer d'emblée un rythme lent peut être vécu comme un échec.
-- **Trois rythmes cibles** : 3 s / 5 s, 4 s / 6 s (conseillé) ou 5 s / 7 s. L'expiration est toujours plus longue que l'inspiration.
-- **Trois durées** : 2, 3 ou 5 minutes.
+- **Deux modes, choisis selon la situation** :
+
+|                         | « J'ai besoin de me calmer »               | « Je veux me détendre »                                     |
+| ----------------------- | ------------------------------------------ | ----------------------------------------------------------- |
+| Pour quand              | Montée d'anxiété, crise de panique         | Entraînement à froid, pause, avant de dormir                |
+| Accès                   | Gros bouton principal, un seul tap         | Bouton secondaire                                           |
+| Rythme de départ        | 3 s / 3 s, proche d'une respiration agitée | Déjà proche de la cible (environ 90 %)                      |
+| Arrivée au rythme cible | Ralentissement progressif sur 1 minute     | En 2 respirations environ                                   |
+| Durées                  | 2, 3 ou 5 minutes                          | 5, 10 ou 15 minutes                                         |
+| Consignes à l'écran     | Toujours visibles                          | S'estompent après 45 s pour suivre au son et aux vibrations |
+
+En crise, on rejoint la personne à son rythme : imposer d'emblée un rythme lent peut être vécu comme un échec. En détente, partir trop vite créerait au contraire une impression de précipitation.
+
+- **Trois rythmes cibles**, communs aux deux modes : 3 s / 5 s, 4 s / 6 s (conseillé) ou 5 s / 7 s. L'expiration est toujours plus longue que l'inspiration. Le rythme le plus lent est volontairement plafonné à 5 s / 7 s, car en dessous beaucoup de débutants ont la sensation de manquer d'air.
 - **Aucun échec possible** : pas de score à battre, pas de game over, pas de chronomètre stressant. Quand on est en phase, des étoiles apparaissent et la lueur grandit. Quand on perd le rythme, rien n'est pénalisé.
 - **Guidage multisensoriel** : un son doux qui suit le souffle et une vibration à chaque changement de phase (vibrations sur Android uniquement). Les deux sont désactivables.
 - **Écran maintenu allumé** pendant la séance, si le navigateur le permet.
@@ -46,3 +57,11 @@ Prototype de test : une page web unique (HTML, CSS, JavaScript, sans dépendance
 - Le ralentissement progressif du rythme paraît-il naturel ?
 - « Appuyer pour inspirer » est-il intuitif, ou faut-il l'inverse ?
 - Le jeu est-il utilisable en état d'agitation (lancement rapide, consignes lisibles) ?
+- Les libellés des deux modes sont-ils assez clairs pour éviter de choisir « détente » en pleine crise ?
+- En détente, l'effacement des consignes aide-t-il à lâcher l'écran, ou désoriente-t-il ?
+
+## Pistes envisagées
+
+- Lancement en un geste depuis un widget ou un raccourci.
+- Exercice d'ancrage sensoriel (5-4-3-2-1) en complément.
+- Biofeedback via montre connectée.
